@@ -27,7 +27,7 @@
 (defn to-maps
   [coll]
   (->> (map #(zipmap [:cik :conm :report_type :url :date] %) coll)
-       (map #(assoc % :url (str "http://www.sec.gov/Archives/" (:url %))))
+       (map #(assoc % :url (:url %)))
        (map #(assoc % :date (->> (re-find #"(\d{2})(\w{3})(\d{4})" (:date %))
                                  rest
                                  ((fn [x] (str (last x) "-"
@@ -36,7 +36,7 @@
 
 (defn maps [] (to-maps (links)))
 
-
+(maps)
 
 (defn fetch-text
   [coll]
@@ -50,6 +50,48 @@
     ;(Thread/sleep 200)
     ))
 
-(fetch-text (maps))
+;(fetch-text (maps))
 
+(def data-ref (ref (maps)))
+
+(defn fetch-item
+  [item]
+  (->> (:url item)
+       (str "http://www.sec.gov/Archives/")
+       slurp
+
+
+
+
+
+       (with-open [f-out (io/writer (str "D:/" (:url item)))]
+        (binding [*out* f-out]
+          ()))))
+
+(.mkdir (io/as-file "D:/data/hahahahaha"))
+
+(re-find #"(.+)/(.+)" "edgar/data/1750/0001104659-06-000903.txt")
+
+(defn get-chunk
+  [data-ref]
+  (dosync
+   (when-let
+     [[s & ss] @data-ref]
+     (ref-set data-ref ss)
+     s)))
+
+(defn download-txt
+  [_ data-ref]
+  (when-let [item (get-chunk data-ref)]
+    (send-off *agent* download-txt data-ref)
+
+
+  ))
+
+
+
+
+(defn fetch-text2
+  [coll]
+  (let [input ( coll)]))
 
