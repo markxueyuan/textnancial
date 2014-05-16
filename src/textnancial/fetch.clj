@@ -68,7 +68,7 @@
         (binding [*out* f-out]
           ()))))
 
-(.mkdir (io/as-file "D:/data/hahahahaha"))
+(.mkdir (io/as-file "D:/data/hahahahahaag/"))
 
 (re-find #"(.+)/(.+)" "edgar/data/1750/0001104659-06-000903.txt")
 
