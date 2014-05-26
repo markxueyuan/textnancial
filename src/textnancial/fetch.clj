@@ -56,7 +56,7 @@
 
 (def data-ref (ref (maps)))
 
-(def counter-ref (ref 0))
+(def counter-ref (ref 14270))
 
 (defn reverse-cons-seq
   [list]
@@ -105,7 +105,7 @@
       (Thread/sleep 500)
     )))
 
-(doseq [item (maps)]
+(doseq [item (drop 14270 (maps))]
   (download-item item))
 
 
