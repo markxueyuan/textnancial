@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/data.csv "0.1.2"]
                  [lein-light-nrepl "0.0.10"]
-                 [com.novemberain/monger "1.7.0"]]
+                 [com.novemberain/monger "1.7.0"]
+                 [net.htmlparser.jericho/jericho-html "3.1"]]
   :repl-options {:nrepl-middleware [lighttable.nrepl.handler/lighttable-ops]}
   :jvm-opts ["-Xmx1g"])
