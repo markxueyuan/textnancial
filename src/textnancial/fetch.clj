@@ -20,13 +20,15 @@
                   (.close in-file))))]
     (lazy csv-seq)))
 
-(defn links [] (lazy-read-csv "D:/data/alllinks.txt"))
+(defn links [] (lazy-read-csv "D:/data/alllinks_within150.txt"))
+
+(links)
 
 (def synm {"jan" 1 "feb" 2 "mar" 3 "apr" 4 "jun" 6 "jul" 7 "sep" 9 "oct" 10 "dec" 12 "nov" 11 "aug" 8 "may" 5})
 
 (defn to-maps
   [coll]
-  (->> (map #(zipmap [:cik :conm :report_type :url :date] %) coll)
+  (->> (map #(zipmap [:id :cik :conm :report_type :url :date] %) coll)
        (map #(assoc % :url (:url %)))
        (map #(assoc % :date (->> (re-find #"(\d{2})(\w{3})(\d{4})" (:date %))
                                  rest
@@ -38,7 +40,7 @@
 
 (maps)
 
-(defn fetch-text
+#_(defn fetch-text
   [coll]
   (doseq [entry coll]
     (let [oid (ObjectId.)
@@ -54,25 +56,60 @@
 
 (def data-ref (ref (maps)))
 
-(defn fetch-item
+(def counter-ref (ref 0))
+
+(defn reverse-cons-seq
+  [list]
+  (for [x (range 1 (+ 1 (count list)))]
+    (take x list)))
+
+(defn iter-str
+  [list]
+  (map #(apply str %) (reverse-cons-seq list)))
+
+
+(defn log
+  [file info]
+  (with-open [f-out (io/writer file :append true)]
+    (binding [*out* f-out]
+      (println info))))
+
+
+(defn download-item
   [item]
-  (->> (:url item)
-       (str "http://www.sec.gov/Archives/")
-       slurp
-
-
-
-
-
-       (with-open [f-out (io/writer (str "D:/" (:url item)))]
+  (let [dir (:url item)
+        text (try (slurp (str "http://www.sec.gov/Archives/" dir))
+               (catch Throwable e
+                 (do
+                   (println "reading url problem happened in " dir)
+                   (log "D:/log.txt" (str "reading url problem happened in " dir))
+                   )))
+        folds (iter-str (list* "D:/" (re-seq #".+?/" dir)))
+        file (re-find  #".+/(.+)" dir)
+        _ (doseq
+            [f folds]
+            (.mkdir (io/as-file f)))]
+    (do
+      (with-open [f-out (io/writer (str "D:/" dir))]
         (binding [*out* f-out]
-          ()))))
+          (try (print text)
+            (catch Throwable e
+              (do
+                (println "writing file problem happend in dir")
+                (log "D:/log.txt" (str "writing file problem happend in " dir)))))))
+      (dosync (alter counter-ref inc))
+      (let [counts @counter-ref]
+        (when (= 0 (mod counts 10))
+          (println counts)
+          (log "D:/log.txt" counts)))
+      (Thread/sleep 500)
+    )))
 
-(.mkdir (io/as-file "D:/data/hahahahahaag/"))
+(doseq [item (maps)]
+  (download-item item))
 
-(re-find #"(.+)/(.+)" "edgar/data/1750/0001104659-06-000903.txt")
 
-(defn get-chunk
+(defn pull
   [data-ref]
   (dosync
    (when-let
@@ -82,16 +119,13 @@
 
 (defn download-txt
   [_ data-ref]
-  (when-let [item (get-chunk data-ref)]
-    (send-off *agent* download-txt data-ref)
+  (when-let [item (pull data-ref)]
+    (do
+      (send-off *agent* download-txt data-ref)
+      (download-item item))))
+
+(defn main
+  [coll ])
 
 
-  ))
-
-
-
-
-(defn fetch-text2
-  [coll]
-  (let [input ( coll)]))
 
