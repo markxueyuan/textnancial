@@ -20,6 +20,17 @@
                   (.close in-file))))]
     (lazy csv-seq)))
 
+(defn safe-line-seq
+  "Similar to line-seq, add a .close at the end."
+  [file]
+  (let [in-file (io/reader file)
+        lazy (fn lazy [wrapped]
+             (lazy-seq
+              (if-let [line (.readLine wrapped)]
+                (cons line (lazy-seq (lazy wrapped)))
+                (.close in-file))))]
+    (lazy in-file)))
+
 (defn links [] (lazy-read-csv "D:/data/alllinks_within150.txt"))
 
 (links)
@@ -56,7 +67,7 @@
 
 (def data-ref (ref (maps)))
 
-(def counter-ref (ref 14270))
+(def counter-ref (ref 27860))
 
 (defn reverse-cons-seq
   [list]
@@ -105,7 +116,7 @@
       (Thread/sleep 500)
     )))
 
-(doseq [item (drop 14270 (maps))]
+#_(doseq [item (drop 27860 (maps))]
   (download-item item))
 
 
@@ -126,6 +137,16 @@
 
 (defn main
   [coll ])
+
+;(safe-line-seq "D:/log.txt")
+
+;(def a (->> (filter #(re-find #"reading url" %) (safe-line-seq "D:/log.txt"))
+;     (map #(re-find  #"reading url problem happened in (.+)" %))
+;     (map second)
+;     (map #(assoc {} :url %))))
+
+;(doseq [item a]
+;  (download-item item))
 
 
 

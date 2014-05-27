@@ -1,7 +1,8 @@
 (ns textnancial.extract
   (:import [java.io File BufferedInputStream FileInputStream]
            [net.htmlparser.jericho Source TextExtractor Renderer])
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io]
+            [textnancial.fetch :refer [maps]]))
 
 
 (defn reverse-cons-seq
@@ -30,17 +31,24 @@
 
 (defn clean-text
   [directory]
-  (let [input (str "E:/" directory)
-        folds (iter-str (list* "E:/" "clean/" (re-seq #".+?/" directory)))
+  (let [input (str "D:/" directory)
+        folds (iter-str (list* "D:/" "clean/" (re-seq #".+?/" directory)))
         _ (doseq
             [f folds]
             (.mkdir (io/as-file f)))
-        output (str "E:/clean/" directory)
+        output (str "D:/clean/" directory)
         err "does not exist yet!"]
     (try (extract-text input output)
       (catch Throwable e
         (do
           (println directory err)
-          (log "E:/log_of_clean.txt" (str directory " " err)))))))
+          (log "D:/log_of_clean.txt" (str directory " " err)))))))
 
-(clean-text "hehe/0001299933-08-000995.txt")
+;(clean-text "hehe/0001299933-08-000995.txt")
+
+#_(doseq [item (maps)]
+  (do
+    (clean-text (:url item))
+    (Thread/sleep 500)))
+
+(clean-text "D:/edgar/data/1750/0001047469-11-006302.txt")
