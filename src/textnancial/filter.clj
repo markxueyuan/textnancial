@@ -81,9 +81,10 @@
 
 ;(match-credit-info "data/0000950129-07-001091.txt")
 ;(match-table-of-contents "data/0000950129-07-001091.txt")
-(def connection (mg/connect {:host "192.168.1.184" :port 27017}))
 
-(def db (mg/get-db connection "textnancial"))
+;(def connection (mg/connect {:host "192.168.1.184" :port 27017}))
+
+;(def db (mg/get-db connection "textnancial"))
 
 (defn write-into-mongo
   [collection entry]
@@ -95,4 +96,21 @@
 
 ;(write-into-mongo "test" {:url "data/0000950129-07-001091.txt" :haha "hehe"})
 
-(doall (map (partial write-into-mongo "credit_info") (fetch/maps)))
+;(doall (map (partial write-into-mongo "credit_info") (fetch/maps)))
+
+(defn assure
+  [max-dist entry]
+  (let [t-o-c (->> (:table entry)
+                   keys
+                   (map read-string))
+        line-n (->> (:credit entry)
+                    keys
+                    (map read-string))
+        words (->> (:credit entry)
+                   vals)
+        within (fn [n] (some (and (> % n) (<= % (+ n max-dist))) t-o-c))
+        pairs (->> (map vector line-n words)
+                   (filter #(within (first %)))
+                   (sort #(< (first %1) (first %2))))]))
+
+
