@@ -16,7 +16,7 @@
            java.util.ArrayList)
   (:use clj-excel.core))
 
-(def connection (mg/connect))
+(def connection (mg/connect {:host "192.168.1.184" :port 27017}))
 
 (def db (mg/get-db connection "textnancial"))
 
@@ -176,14 +176,17 @@
   [entry]
   (when (= "Y" (:m2_80 entry))
     (let [directory (:url_dir entry)
-          input (str "D:/" directory)
-          folds (iter-str (list* "D:/" "matched/" (re-seq #".+?/" directory)))
+          input (str "H:/" directory)
+          folds (iter-str (list* "H:/" "matched/" (re-seq #".+?/" directory)))
           _ (doseq
             [f folds]
             (.mkdir (io/as-file f)))
-        output (str "D:/matched/" directory)]
+        output (str "H:/matched/" directory)]
       (io/copy (io/file input) (io/file output)))))
 
 
 ;(copy-fitted-file {:m2_80 "Y" :url_dir "data/big.txt"})
+
+(doseq [a (mmc/find-maps db "credit_final")]
+  (copy-fitted-file a))
 
