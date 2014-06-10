@@ -12,4 +12,4 @@
                  [clj-excel "0.0.1"]
                  [enlive "1.1.5"]]
   :repl-options {:nrepl-middleware [lighttable.nrepl.handler/lighttable-ops]}
-  :jvm-opts ["-Xmx1g"])
+  :jvm-opts ["-Xmx256m"])
