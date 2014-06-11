@@ -68,7 +68,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;write to db;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(def connection (mg/connect))
+(def connection (mg/connect {:host "192.168.1.184" :port 27017}))
 
 (def db (mg/get-db connection "textnancial"))
 
