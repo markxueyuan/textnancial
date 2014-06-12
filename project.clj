@@ -10,6 +10,7 @@
                  [net.htmlparser.jericho/jericho-html "3.1"]
                  [clj-time "0.6.0"]
                  [clj-excel "0.0.1"]
-                 [enlive "1.1.5"]]
+                 [enlive "1.1.5"]
+                 [clojure-csv/clojure-csv "2.0.1"]]
   :repl-options {:nrepl-middleware [lighttable.nrepl.handler/lighttable-ops]}
   :jvm-opts ["-Xmx256m"])
