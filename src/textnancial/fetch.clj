@@ -31,9 +31,9 @@
                 (.close in-file))))]
     (lazy in-file)))
 
-(defn links [] (lazy-read-csv "D:/data/alllinks_within150.txt"))
+;(defn links [] (lazy-read-csv "D:/data/alllinks_within150.txt"))
 
-(links)
+;(links)
 
 (def synm {"jan" 1 "feb" 2 "mar" 3 "apr" 4 "jun" 6 "jul" 7 "sep" 9 "oct" 10 "dec" 12 "nov" 11 "aug" 8 "may" 5})
 
@@ -47,9 +47,9 @@
                                         (get synm (second x)) "-"
                                         (first x)))))))))
 
-(defn maps [] (to-maps (links)))
+;(defn maps [] (to-maps (links)))
 
-(maps)
+;(maps)
 
 #_(defn fetch-text
   [coll]
@@ -65,7 +65,7 @@
 
 ;(fetch-text (maps))
 
-(def data-ref (ref (maps)))
+;(def data-ref (ref (maps)))
 
 (def counter-ref (ref 27860))
 
@@ -147,6 +147,7 @@
 
 ;(doseq [item a]
 ;  (download-item item))
+
 
 
 
