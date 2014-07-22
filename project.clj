@@ -13,4 +13,4 @@
                  [enlive "1.1.5"]
                  [clojure-csv/clojure-csv "2.0.1"]]
   :repl-options {:nrepl-middleware [lighttable.nrepl.handler/lighttable-ops]}
-  :jvm-opts ["-Xmx256m"])
+  :jvm-opts ["-Xmx1g"])

@@ -10,17 +10,15 @@
   (-> (lazy-workbook (workbook-hssf file))
       (get "content")))
 
-(get-data "D:/data/nan_yang/part1.xls")
-
 
 (defn split
   [row]
   (let [row (map str row)
-        first4 (vec (take 4 row))
-        middles (take 6 (drop 4 row))
+        first4 (vec (take 5 row))
+        middles (take 4 (drop 5 row))
         subrows (map #(string/split % #"[\r\n]") middles)
-        last4 (vec (drop 10 row))
-        rows (apply (partial map (partial vector)) subrows)]
+        last4 (vec (drop 9 row))
+        rows (apply (partial map (partial vector)) subrows)];It is Nice!
     (->> (map #(into first4 %) rows)
          (map #(into % last4))
          )
@@ -40,16 +38,8 @@
           )))))
 
 
-(write-csv-quoted "D:/data/nan_yang/part3.xls" "D:/data/nan_yang/part3.csv")
+(write-csv-quoted "D:/data/amendment.xls" "D:/data/amendment_split2.csv")
 
-
-
-
-(map #(into [7 2 4 6 9 8] %) [[3 5] [8 9]])
-
-(apply (partial map (partial vector)) [[1 2 3] [4 5 6] [7 8 9]])
-
-(into [1 2 3] [4 5] )
 
 
 
