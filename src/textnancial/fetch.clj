@@ -20,16 +20,19 @@
                   (.close in-file))))]
     (lazy csv-seq)))
 
-(defn safe-line-seq
-  "Similar to line-seq, add a .close at the end."
+
+(defn lazy-read-csv-head-on
   [file]
-  (let [in-file (io/reader file)
-        lazy (fn lazy [wrapped]
-             (lazy-seq
-              (if-let [line (.readLine wrapped)]
-                (cons line (lazy-seq (lazy wrapped)))
-                (.close in-file))))]
-    (lazy in-file)))
+  (let [coll (lazy-read-csv file)
+        head (map keyword (first coll))
+        rows (rest coll)]
+    (map #(zipmap head %) rows)))
+
+(defn build-job
+  [file & {:keys [host port name]
+           :or {host "localhost"
+                port "27017"}}]
+  (do ))
 
 ;(defn links [] (lazy-read-csv "D:/data/alllinks_within150.txt"))
 
