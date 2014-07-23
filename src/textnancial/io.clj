@@ -2,9 +2,9 @@
   (:use clj-excel.core)
   (:require [clojure.data.csv :as csv]
             [clojure.java.io :as io]
-            [clojure.string :as string]))
-
-
+            [clojure.string :as string]
+            [monger.core :as mg]
+            [monger.collection :as mc]))
 
 
 (defn lazy-read-excel-head-on
@@ -35,3 +35,10 @@
         head (map keyword (first coll))
         rows (rest coll)]
     (map #(zipmap head %) rows)))
+
+(defn insert-mongo-in-batches
+  [coll table & {:keys [indexed]}]
+  (let [conn (mg/connect)
+        db (mg/get-db conn "jobs")]
+    (when indexed (mc/ensure-index db table (array-map indexed 1)))
+    (mc/insert-batch db table coll)))
