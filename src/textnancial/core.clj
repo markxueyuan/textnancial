@@ -1,6 +1,12 @@
-(ns textnancial.core)
+(ns textnancial.core
+  (:require [clojure.string :as string]))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(defmulti upload-job
+  (fn [file-name & {:keys [indexed]}]
+    (->> (re-find #".+\.(.+)" file-name)
+         second)))
+
+(defmethod upload-job "csv"
+  [file-name & {:keys [indexed]}]
+
+  )
