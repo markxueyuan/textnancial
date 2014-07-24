@@ -53,46 +53,33 @@
   [file-name]
   (lazy-read-excel-head-on file-name))
 
+(def db-conn
+  (let [conn (mg/connect)]
+    (mg/get-db conn "jobs")))
+
 (defn insert-mongo-in-batches
   [coll table & {:keys [indexed]}]
-  (let [conn (mg/connect)
-        db (mg/get-db conn "jobs")]
-    (when indexed (mc/ensure-index db table (array-map indexed 1)))
-    (mc/insert-batch db table coll)))
+  (when indexed (mc/ensure-index db-conn table (array-map indexed 1)))
+  (mc/insert-batch db-conn table coll))
 
 (defn insert-mongo-one-by-one
   [coll table & {:keys [indexed]}]
-  (let [conn (mg/connect)
-        db (mg/get-db conn "jobs")]
-    (when indexed (mc/ensure-index db table (array-map indexed 1)))
-    (doseq [q coll]
-      (mc/insert db table q))))
+  (when indexed (mc/ensure-index db-conn table (array-map indexed 1)))
+  (doseq [q coll]
+    (mc/insert db-conn table q)))
 
-(defmacro find-one-in-mongo
+(defn find-one-in-mongo
   [table-name condition]
-  `(let [conn# (mg/connect)
-        db# (mg/get-db conn# "jobs")]
-    (mc/find-one-as-map db# ~table-name ~condition)))
+  (mc/find-one-as-map db-conn table-name condition))
 
-(defmacro update-one-in-mongo
+(defn update-one-in-mongo
   [table-name condition change]
-  `(let [conn# (mg/connect)
-        db# (mg/get-db conn# "jobs")]
-    (.getN (mc/update db# ~table-name ~condition ~change {:multi false}))))
+  (.getN (mc/update db-conn table-name condition change {:multi false})))
 
 
-(defmacro lazy-read-mongo
+(defn lazy-read-mongo-no-timeout
   [table-name condition]
-  `(let [conn# (mg/connect)
-        db# (mg/get-db conn# "jobs")]
-    (mc/find-maps db# ~table-name ~condition)))
-
-
-(defmacro lazy-read-mongo-no-timeout
-  [table-name condition]
-  `(let [conn# (mg/connect)
-        db# (mg/get-db conn# "jobs")
-        cur# (mc/find db# ~table-name ~condition)]
-     (cur/add-options cur# :notimeout)
-     (cur/format-as cur# :map)))
+  (let [cur (mc/find db-conn table-name condition)]
+    (cur/add-options cur :notimeout)
+    (cur/format-as cur :map)))
 
