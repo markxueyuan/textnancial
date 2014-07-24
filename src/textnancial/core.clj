@@ -16,6 +16,6 @@
     (doseq [w workers]
       (job-dispatcher w table-name))))
 
-(run-job "amendment" plainly-download-sec 15)
+(run-job "amendment" plainly-download-sec 5000)
 
-;(upload-job "D:/data/allSEClinks.csv" "amendment" :indexed :amendlink)
+;(upload-job "D:/data/allSEClinks.csv" "amendment" :indexed :filename)

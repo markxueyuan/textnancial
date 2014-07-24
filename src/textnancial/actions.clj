@@ -41,20 +41,20 @@
           (println s)
           (plainly-download-sec *agent* table-name)
           )
-        (do (send-off *agent* (fn [_] nil))
-          (plainly-download-sec *agent* table-name)
+        (do
           (println "haha")
+          (plainly-download-sec *agent* table-name)
           ))))))
 
 (defn sec-to-file
   [_ table]
-  (sec-to-file-help _ table :filename "D:/data/"))
+  (sec-to-file-help _ table :filename "D:/"))
 
 
 #_(doseq [item (lazy-read-mongo-no-timeout "amendment" {:download_status nil})]
     (let [id (:_id item)]
     (try (do
-           (download-item item :filename "H:/data/")
+           (download-item item :filename "D:/")
            (update-one-in-mongo "amendment"
                                  {:_id id}
                                  {$set {:download_status "done"}}))
