@@ -1,13 +1,6 @@
 (ns textnancial.fetch
   (:require [clojure.data.csv :as csv]
-            [clojure.java.io :as io]
-            [monger.core :as mg]
-            [monger.collection :as mc]
-            [monger.multi.collection :as mmc];mirror of mc, but with db as first argument for every function.
-            [monger.conversion :refer [from-db-object]])
-  (:import [com.mongodb MongoOptions ServerAddress WriteConcern BasicDBObject BasicDBList]
-           org.bson.types.ObjectId
-           java.util.ArrayList))
+            [clojure.java.io :as io]))
 
 (defn lazy-read-csv
   [csv-file]
@@ -90,37 +83,17 @@
 
 
 (defn download-item
-  [item]
-  (let [dir (:url item)
-        text (try (slurp (str "http://www.sec.gov/Archives/" dir))
-               (catch Throwable e
-                 (do
-                   (println "reading url problem happened in " dir)
-                   (log "D:/log.txt" (str "reading url problem happened in " dir))
-                   )))
-        folds (iter-str (list* "D:/" (re-seq #".+?/" dir)))
-        file (re-find  #".+/(.+)" dir)
+  [item url-key destination]
+  (let [dir (url-key item)
+        text (slurp (str "http://www.sec.gov/Archives/" dir))
+        folds (iter-str (list* destination (re-seq #".+?/" dir)))
         _ (doseq
             [f folds]
             (.mkdir (io/as-file f)))]
-    (do
-      (with-open [f-out (io/writer (str "D:/" dir))]
+    (with-open [f-out (io/writer (str destination dir))]
         (binding [*out* f-out]
-          (try (print text)
-            (catch Throwable e
-              (do
-                (println "writing file problem happend in dir")
-                (log "D:/log.txt" (str "writing file problem happend in " dir)))))))
-      (dosync (alter counter-ref inc))
-      (let [counts @counter-ref]
-        (when (= 0 (mod counts 10))
-          (println counts)
-          (log "D:/log.txt" counts)))
-      (Thread/sleep 500)
-    )))
+          (print text)))))
 
-#_(doseq [item (drop 27860 (maps))]
-  (download-item item))
 
 
 (defn pull

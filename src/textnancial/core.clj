@@ -1,23 +1,19 @@
 (ns textnancial.core
-  (:use textnancial.io)
+  (:use textnancial.io
+        textnancial.actions)
   (:require [clojure.string :as string]))
 
-(defmacro template
-  [s]
-  `(let [coll# ~s
-         parts# (partition-all 500 coll#)]
-     (doseq [q# parts#]
-       (insert-mongo-in-batches q# ~'table-name :indexed ~'indexed))))
-
-(defmulti upload-job
-  (fn [file-name table-name & {:keys [indexed]}]
-    (->> (re-find #".+\.(.+)" file-name)
-         second)))
-
-(defmethod upload-job "csv"
+(defn upload-job
   [file-name table-name & {:keys [indexed]}]
-  (template (lazy-read-csv-head-on file-name)))
+  (let [coll (lazy-read-file-head-on file-name)
+        parts (partition-all 500 coll)]
+     (doseq [q parts]
+       (insert-mongo-in-batches q table-name :indexed indexed))))
 
-(defmethod upload-job "xls"
-  [file-name table-name & {:keys [indexed]}]
-  (template (lazy-read-excel-head-on file-name)))
+(defn run-job
+  [table-name job-dispatcher worker-num]
+  (let [workers (set (repeatedly worker-num #(agent nil)))]
+    (doseq [w workers]
+      (job-dispatcher w table-name))))
+
+(run-job "amendment" plainly-download-sec 5)
