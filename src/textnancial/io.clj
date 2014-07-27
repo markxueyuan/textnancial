@@ -76,6 +76,10 @@
   [table-name condition change]
   (.getN (mc/update db-conn table-name condition change {:multi false})))
 
+(defn update-multiple-in-mongo
+  [table-name condition change]
+  (mc/update db-conn table-name condition change {:multi true}))
+
 
 (defn lazy-read-mongo-no-timeout
   [table-name condition]

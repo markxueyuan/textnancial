@@ -79,20 +79,22 @@
   [file info]
   (with-open [f-out (io/writer file :append true)]
     (binding [*out* f-out]
-      (println info))))
+      (println (java.util.Date.) info))))
 
 
 (defn download-item
   [item url-key destination]
   (let [dir (url-key item)
-        text (slurp (str "http://www.sec.gov/Archives/" dir))
-        folds (iter-str (list* destination (re-seq #".+?/" dir)))
-        _ (doseq
-            [f folds]
-            (.mkdir (io/as-file f)))]
-    (with-open [f-out (io/writer (str destination dir))]
-        (binding [*out* f-out]
-          (print text)))))
+        uri (str destination dir)]
+    (when-not (.exists (io/file uri))
+      (let [text (slurp (str "http://www.sec.gov/Archives/" dir))
+            folds (iter-str (list* destination (re-seq #".+?/" dir)))
+            _ (doseq
+                [f folds]
+                (.mkdir (io/as-file f)))]
+        (with-open [f-out (io/writer uri)]
+          (binding [*out* f-out]
+            (print text)))))))
 
 
 
@@ -123,7 +125,5 @@
 
 ;(doseq [item a]
 ;  (download-item item))
-
-
 
 

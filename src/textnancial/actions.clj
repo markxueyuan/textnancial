@@ -12,11 +12,11 @@
   [worker table-name]
   (let [state @worker
         status (:download_status state)
-        action (send-off worker sec-to-file table-name)]
-    (cond (nil? state) action
-          (= status "done") action
-          (= status "failed") action
-          :else action)))
+        action (fn [] (send-off worker sec-to-file table-name))]
+    (cond (nil? state) (action)
+          (= status "done") (action)
+          (= status "failed") (action)
+          :else (action))))
 
 (defn sec-to-file-help
   [_ table-name url-key destination]
@@ -45,6 +45,7 @@
           (println "haha")
           (plainly-download-sec *agent* table-name)
           ))))))
+
 
 (defn sec-to-file
   [_ table]
