@@ -2,7 +2,9 @@
   (:require [textnancial.fetch :refer [download-item]]
             [monger.collection :as mc]
             [monger.operators :refer [$set]]
-            [textnancial.io :refer :all]))
+            [textnancial.io :refer :all]
+            [textnancial.atoms :as a]
+            [textnancial.filter :as flt]))
 
 ;;;;;;;;;;;;;;;;;;;;plainly download-sec;;;;;;;;;;;;;;;;;;;;
 
@@ -52,25 +54,41 @@
   (sec-to-file-help _ table :filename "D:/"))
 
 
-#_(doseq [item (lazy-read-mongo-no-timeout "amendment" {:download_status nil})]
-    (let [id (:_id item)]
-    (try (do
-           (download-item item :filename "D:/")
-           (update-one-in-mongo "amendment"
-                                 {:_id id}
-                                 {$set {:download_status "done"}}))
-      (catch Throwable e (update-one-in-mongo "amendment"
-                                 {:_id id}
-                                 {$set {:download_status "failed"}})))))
+;;;;;;;;;;;;;;;;;;;;;;match the regex;;;;;;;;;;;;;;;;;;;;;;;;
+(declare match-regex)
 
+(defn search-text-single-condition
+  [worker table-name]
+  (send worker match-regex table-name))
 
-  #_(let [func (fn [item] (let [id (:_id item)]
-    (try (do
-           (download-item item :filename "D:/data/")
-           (update-one-in-mongo "amendment"
-                                 {:_id id}
-                                 {$set {:download_status "done"}}))
-      (catch Throwable e (update-one-in-mongo "amendment"
-                                 {:_id id}
-                                 {$set {:download_status "failed"}})))))]
-    (doall (pmap func (mc/find-maps "amendment" {:download_status nil}))))
+(defn match-regex
+  [_ table-name]
+    (when-let [item (find-one-in-mongo table-name {:search_status nil})]
+    (let [a (atom nil)
+          id (:_id item)
+          act (fn [] (flt/match-info (a/url-key item) a/location a/regex))
+          taken (update-one-in-mongo table-name
+                                     {:_id id :search_status nil}
+                                     {$set {:search_status "working"}})
+          s (fn [] (try (do
+                   (update-one-in-mongo table-name
+                                        {:_id id :search_status "working"}
+                                     {$set {a/result-key (act)}})
+                   (reset! a "done")
+                   @a)
+              (catch Exception e
+                (do (reset! a "failed")
+                  @a))))]
+      (if (= taken 1)
+        (let [s (s)]
+        (do (update-one-in-mongo table-name
+                                 {:_id id :download_status "working"}
+                                 {$set {:download_status s}})
+          (println s)
+          (search-text-single-condition *agent* table-name)
+          )
+        (do
+          (println "haha")
+          (search-text-single-condition *agent* table-name)
+          ))))))
+

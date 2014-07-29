@@ -87,3 +87,13 @@
     (cur/add-options cur :notimeout)
     (cur/format-as cur :map)))
 
+(defn safe-line-seq
+  "Similar to line-seq, add a .close at the end."
+  [file]
+  (let [in-file (io/reader file)
+        lazy (fn lazy [wrapped]
+             (lazy-seq
+              (if-let [line (.readLine wrapped)]
+                (cons line (lazy-seq (lazy wrapped)))
+                (.close in-file))))]
+    (lazy in-file)))

@@ -33,13 +33,18 @@
   [table-name job-status]
   (recovery table-name job-status "working"))
 
-;(run-job "amendment" plainly-download-sec 5)
+;(run-job "violation" plainly-download-sec 150)
 
-;(upload-job "D:/data/allSEClinks.csv" "amendment" :indexed :filename)
+;(upload-job "D:/data/SEClinks_viol_28Jul2014.csv" "violation" :indexed :filename)
 
-;(failure-recovery "amendment" :download_status)
+;(failure-recovery "violation" :download_status)
 
-;(clear-interrupted "amendment" :download_status)
+;(clear-interrupted "violation" :download_status)
 
 
 ;(update-multiple-in-mongo "amendment"  {} {monger.operators/$set {:download_status nil}})
+
+#_(future(loop []
+  (failure-recovery "violation" :download_status)
+  (Thread/sleep 30000)
+  (recur)))
