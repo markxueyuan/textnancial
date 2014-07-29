@@ -48,3 +48,8 @@
   (failure-recovery "violation" :download_status)
   (Thread/sleep 30000)
   (recur)))
+
+(defn set-default
+  [& {:keys [location regex url-key result-key result-key]
+      :or }]
+  (let [func ]))
