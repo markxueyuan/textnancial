@@ -25,12 +25,12 @@
 (defn assure
   [max-distance vov1 vov2]
   (let [n-2 (map first vov2)
-        within (fn [n] (some #(and (> % n) (<= % (+ n max-dist))) n-2))]
+        within (fn [n] (some #(and (> % n) (<= % (+ n max-distance))) n-2))]
     (when (and vov1 vov2)
       (filter #(within (first %)) vov1))))
 
 
-(defn match-contract-date
+#_(defn match-contract-date
   [address]
   (let [doc (str "H:/" address)]
     (if (.exists (io/file doc))
@@ -48,7 +48,7 @@
 
 
 
-(defn add-contract-date
+#_(defn add-contract-date
   [entry]
   (if-not (empty? (:m2-80 entry))
     (assoc entry :contract-date (match-contract-date (:url entry)))
@@ -60,5 +60,4 @@
 
 
 
-(re-find #"这.+?是|那.+?是|还.+?是" "这不就是你想追求的生活吗？那不然还有什么是好的？还得是讲求真才算正道吧？")
 
